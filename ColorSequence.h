@@ -1,19 +1,21 @@
 #pragma once
 
 #include <list>
+#include <ostream>
 #include "ColorSet.h"
 
 class ColorSequence
 {
 public:
+	ColorSequence();
 	ColorSequence(const int n, const int m, const Color color);
 
 	/*
 	available result values:
 		0 - success;
-		1 - unavailable pair of src and dst colors;
+		1 - unavailable pair of 'src' and 'dst' colors;
 		2 - invalid value of 'number_of_digits';
-		3 - not a single number could be recolored;
+		3 - not a single digit could be recolored;
 	*/
 	int recolor(Color src, Color dst, int number_of_digits);
 

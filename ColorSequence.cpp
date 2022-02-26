@@ -1,6 +1,10 @@
 #include <iostream>
 #include "ColorSequence.h"
 
+ColorSequence::ColorSequence(): 
+	ColorSequence(ColorSet::cDefaultStartNumber, ColorSet::cDefaultStartNumber, Color::Red)
+{}
+
 ColorSequence::ColorSequence(const int n, const int m, const Color color)
 {
 	size_t size = std::max(m - n + 1, 1);

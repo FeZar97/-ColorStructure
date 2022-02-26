@@ -10,7 +10,7 @@ enum class Color
 	Blue
 };
 
-const static std::map<Color, std::set<Color>> cAvailableColorTransitions
+const std::map<Color, std::set<Color>> cAvailableColorTransitions
 {
 	{Color::Green, {Color::Blue}},
 	{Color::Blue, {Color::Red, Color::Green}}
