@@ -1,0 +1,10 @@
+# Files
+*.vcxproj*
+*.gch
+*.pch
+*.exe
+*.out
+*.app
+
+# Dirs
+*x64*
