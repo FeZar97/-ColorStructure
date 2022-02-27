@@ -63,15 +63,14 @@ namespace ColorSetTest {
 
 	TEST_F(ColorSetTest, RecolorResultTest1) 
 	{
-		size_t digitsToRecolor = 3, initialDigitsNb = greenColorSet.size();
-		int startNumber = greenColorSet.startNumber();
+		size_t digitsToRecolor = 3, initialDigitsNb = greenColorSet.size(), startNumber = greenColorSet.startNumber();
 		const auto recolorResult = ColorSet::getRecolorResult(Color::Green, Color::Blue, digitsToRecolor, greenColorSet);
 
 		ASSERT_TRUE(recolorResult.first.has_value());
 		ASSERT_TRUE(recolorResult.second.has_value());
 		ASSERT_TRUE(*recolorResult.first == ColorSet(Color::Blue, startNumber, digitsToRecolor));
 		ASSERT_TRUE(*recolorResult.second ==
-			ColorSet(Color::Green, startNumber + static_cast<int>(digitsToRecolor), greenColorSet.size() - digitsToRecolor));
+			ColorSet(Color::Green, startNumber + digitsToRecolor, greenColorSet.size() - digitsToRecolor));
 	}
 
 	TEST_F(ColorSetTest, RecolorResultTest2) 
@@ -108,14 +107,14 @@ namespace ColorSequenceTest {
 	class ColorSequenceTest : public ::testing::Test
 	{
 	protected:
-		const static int cDefaultEndDigit = 5;
+		const static size_t cDefaultEndDigit = 5;
 
 		void SetUp() override 
 		{
 			osstream.flush();
-			redSequence = { ColorSet::cDefaultStartNumber, cDefaultEndDigit, Color::Red };
-			greenSequence = { ColorSet::cDefaultStartNumber, cDefaultEndDigit, Color::Green };
-			blueSequence = { ColorSet::cDefaultStartNumber, cDefaultEndDigit, Color::Blue };
+			redSequence = { cDefaultStartNumber, cDefaultEndDigit, Color::Red };
+			greenSequence = { cDefaultStartNumber, cDefaultEndDigit, Color::Green };
+			blueSequence = { cDefaultStartNumber, cDefaultEndDigit, Color::Blue };
 		}
 
 		std::ostringstream osstream;
@@ -136,42 +135,48 @@ namespace ColorSequenceTest {
 
 	TEST_F(ColorSequenceTest, IncorrecRecolorTest1)
 	{
-		EXPECT_EQ(1, redSequence.recolor(Color::Red, Color::Blue, cDefaultEndDigit));
+		EXPECT_EQ(ColorSequence::UNAVALAIBLE_COLOR_PAIR,
+			redSequence.recolor(Color::Red, Color::Blue, cDefaultEndDigit));
 		osstream << redSequence;
 		EXPECT_EQ(osstream.str(), "1r2r3r4r5r");
 	}
 
 	TEST_F(ColorSequenceTest, IncorrecRecolorTest2)
 	{
-		EXPECT_EQ(2, greenSequence.recolor(Color::Green, Color::Blue, -1));
+		EXPECT_EQ(ColorSequence::INVALID_DIGITS_ARG,
+			greenSequence.recolor(Color::Green, Color::Blue, -1));
 		osstream << greenSequence;
 		EXPECT_EQ(osstream.str(), "1g2g3g4g5g");
 	}
 
 	TEST_F(ColorSequenceTest, IncorrecRecolorTest3)
 	{
-		EXPECT_EQ(3, redSequence.recolor(Color::Green, Color::Blue, cDefaultEndDigit));
+		EXPECT_EQ(ColorSequence::NOTHING_TO_RECOLOR,
+			redSequence.recolor(Color::Green, Color::Blue, cDefaultEndDigit));
 		osstream << redSequence;
 		EXPECT_EQ(osstream.str(), "1r2r3r4r5r");
 	}
 
 	TEST_F(ColorSequenceTest, EmptyRecolorTest)
 	{
-		EXPECT_EQ(0, greenSequence.recolor(Color::Green, Color::Blue, 0));
+		EXPECT_EQ(ColorSequence::SUCCESS,
+			greenSequence.recolor(Color::Green, Color::Blue, 0));
 		osstream << greenSequence;
 		EXPECT_EQ(osstream.str(), "1g2g3g4g5g");
 	}
 
 	TEST_F(ColorSequenceTest, FullRecolorTest)
 	{
-		EXPECT_EQ(0, greenSequence.recolor(Color::Green, Color::Blue, cDefaultEndDigit));
+		EXPECT_EQ(ColorSequence::SUCCESS,
+			greenSequence.recolor(Color::Green, Color::Blue, cDefaultEndDigit));
 		osstream << greenSequence;
 		EXPECT_EQ(osstream.str(), "1b2b3b4b5b");
 	}
 
 	TEST_F(ColorSequenceTest, PartRecolorTest)
 	{
-		EXPECT_EQ(0, greenSequence.recolor(Color::Green, Color::Blue, 3));
+		EXPECT_EQ(ColorSequence::SUCCESS,
+			greenSequence.recolor(Color::Green, Color::Blue, 3));
 		osstream << greenSequence;
 		EXPECT_EQ(osstream.str(), "1b2b3b4g5g");
 	}
@@ -181,16 +186,17 @@ namespace ColorSequenceTest {
 		struct RecolorParams
 		{
 			Color src, dst;
-			int numberOfDigits, recolorResult;
+			int digitsToRecolor, recolorResult;
 			std::string result;
 		};
 		const std::vector<RecolorParams> cRecolorParamsArray = {
-			{Color::Green, Color::Blue,  3, 0, "1b2b3b4g5g6g7g8g9g"},
-			{Color::Green, Color::Blue,  3, 0, "1b2b3b4b5b6b7g8g9g"},
-			{Color::Red,   Color::Blue,  3, 1, "1b2b3b4b5b6b7g8g9g"},
-			{Color::Blue,  Color::Red,   9, 0, "1r2r3r4r5r6r7g8g9g"},
-			{Color::Green, Color::Blue,  9, 0, "1r2r3r4r5r6r7b8b9b"},
-			{Color::Blue,  Color::Green, 2, 0, "1r2r3r4r5r6r7g8g9b"}
+			{Color::Green, Color::Blue,  3, ColorSequence::SUCCESS, "1b2b3b4g5g6g7g8g9g"},
+			{Color::Green, Color::Blue,  3, ColorSequence::SUCCESS, "1b2b3b4b5b6b7g8g9g"},
+			{Color::Red,   Color::Blue,  3, ColorSequence::UNAVALAIBLE_COLOR_PAIR, 
+																	"1b2b3b4b5b6b7g8g9g"},
+			{Color::Blue,  Color::Red,   9, ColorSequence::SUCCESS, "1r2r3r4r5r6r7g8g9g"},
+			{Color::Green, Color::Blue,  9, ColorSequence::SUCCESS, "1r2r3r4r5r6r7b8b9b"},
+			{Color::Blue,  Color::Green, 2, ColorSequence::SUCCESS, "1r2r3r4r5r6r7g8g9b"}
 		};
 
 		ColorSequence sequence(1, 9, Color::Green);
@@ -198,7 +204,7 @@ namespace ColorSequenceTest {
 		for (const RecolorParams& params : cRecolorParamsArray)
 		{
 			std::ostringstream osstream;
-			EXPECT_EQ(params.recolorResult, sequence.recolor(params.src, params.dst, params.numberOfDigits));
+			EXPECT_EQ(params.recolorResult, sequence.recolor(params.src, params.dst, params.digitsToRecolor));
 			osstream << sequence;
 			EXPECT_EQ(osstream.str(), params.result);
 		}

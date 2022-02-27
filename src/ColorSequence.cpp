@@ -1,13 +1,9 @@
 #include <iostream>
 #include "ColorSequence.h"
 
-ColorSequence::ColorSequence(): 
-	ColorSequence(ColorSet::cDefaultStartNumber, ColorSet::cDefaultStartNumber, Color::Red)
-{}
-
-ColorSequence::ColorSequence(const int n, const int m, const Color color)
+ColorSequence::ColorSequence(const size_t n, const size_t m, const Color color)
 {
-	size_t size = std::max(m - n + 1, 1);
+	size_t size = std::max(m - n + 1, cDefaultSize);
 
 	sequence_.push_back({ color, n, size });
 	orderedColors_.insert({ color, {{ size, sequence_.begin() }} });
@@ -17,18 +13,18 @@ int ColorSequence::recolor(Color src, Color dst, int number_of_digits)
 {
 	if (!canRecolor(src, dst))
 	{
-		return 1;
+		return UNAVALAIBLE_COLOR_PAIR;
 	}
 
 	if (number_of_digits <= 0)
 	{
-		return number_of_digits < 0 ? 2 : 0;
+		return number_of_digits < 0 ? INVALID_DIGITS_ARG : SUCCESS;
 	}
 
 	auto selectedColorMapIter = orderedColors_.find(src);
 	if (selectedColorMapIter == orderedColors_.end())
 	{
-		return 3;
+		return NOTHING_TO_RECOLOR;
 	}
 
 	size_t numbersToRecolor = number_of_digits;
@@ -50,7 +46,7 @@ int ColorSequence::recolor(Color src, Color dst, int number_of_digits)
 
 	checkNeighbours(recolorResult, insertResPair);
 
-	return 0;
+	return SUCCESS;
 }
 
 void ColorSequence::addRecolorResult(const ColorSet::RecoloredResultPair& recolorResult, 
@@ -92,10 +88,9 @@ std::ostream& operator<<(std::ostream& os, const ColorSequence& sequence)
 {
 	for (const ColorSet& colorSet : sequence.sequence_)
 	{
-		char colorChar = colorToChar(colorSet.color());
 		for (int number = colorSet.startNumber(); number < colorSet.startNumber() + colorSet.size(); number++)
 		{
-			os << number << colorChar;
+			os << number << colorSet.color();
 		}
 	}
 	return os;

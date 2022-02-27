@@ -2,6 +2,7 @@
 
 #include <map>
 #include <set>
+#include <ostream>
 
 enum class Color
 {
@@ -9,6 +10,8 @@ enum class Color
 	Green,
 	Blue
 };
+
+const Color cDefaultColor{ Color::Red };
 
 const std::map<Color, std::set<Color>> cAvailableColorTransitions
 {
@@ -18,21 +21,8 @@ const std::map<Color, std::set<Color>> cAvailableColorTransitions
 
 bool static canRecolor(const Color curColor, const Color newColor)
 {
-	return cAvailableColorTransitions.count(curColor) 
+	return cAvailableColorTransitions.count(curColor)
 		&& cAvailableColorTransitions.at(curColor).count(newColor);
 }
 
-char static colorToChar(const Color color)
-{
-	switch (color)
-	{
-	case Color::Red:
-		return 'r';
-	case Color::Green:
-		return 'g';
-	case Color::Blue:
-		return 'b';
-	default:
-		return '-';
-	}
-}
+std::ostream& operator<<(std::ostream& os, const Color color);
