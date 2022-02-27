@@ -22,6 +22,11 @@ bool ColorSet::operator==(const ColorSet& rhs) const
 		&& size_ == rhs.size();
 }
 
+bool ColorSet::operator!=(const ColorSet& rhs) const
+{
+	return !(*this == rhs);
+}
+
 ColorSet::RecoloredResultPair ColorSet::getRecolorResult(const Color src, const Color dst, const size_t numberOfDigitsToRecolor, const ColorSet& colorSet)
 {
 	if (!canRecolor(src, dst) || src != colorSet.color())

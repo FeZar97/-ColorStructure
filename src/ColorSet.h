@@ -16,6 +16,7 @@ public:
 
 	void merge(const ColorSet& otherColorSet);
 	bool operator==(const ColorSet& rhs) const;
+	bool operator!=(const ColorSet& rhs) const;
 
 	using ColorSetOpt = std::optional<ColorSet>;
 	using RecoloredResultPair = std::pair<ColorSetOpt, ColorSetOpt>;
